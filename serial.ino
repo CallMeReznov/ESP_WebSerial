@@ -1,4 +1,6 @@
-//ESP32 Only
+//ESP32 Only   Core : ESP32­-WROVER­-B
+//Development board : https://github.com/LilyGO/LILYGO-T-Energy
+// 
 //IF 8266
 //#include <ESP8266WiFi.h>
 //#include <ESPAsyncTCP.h>
@@ -22,6 +24,9 @@ const char* password = "test12345";
 AsyncWebServer server(80);
 //WebSocket服务
 WebSocketsServer webSocket = WebSocketsServer(8088);
+
+//设置交互串口
+//abababababababababababababa
 
 //404页
 void errorpage(AsyncWebServerRequest* request) {
@@ -57,7 +62,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length)
         // send message to client
         webSocket.sendTXT(num, "Connected");
     }
-    break;
+        break;
+    //串口交互ababababababababababababa
     case WStype_TEXT:
         Serial.printf("[%u] get Text: %s\n", num, payload);
 
@@ -72,7 +78,6 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length)
     case WStype_BIN:
         Serial.printf("[%u] get binary length: %u\n", num, length);
         hexdump(payload, length);
-
         // send message to client
         // webSocket.sendBIN(num, payload, length);
         break;
@@ -101,7 +106,8 @@ void setup() {
   
   //首页
   //返回data文件夹内的文件内容,需使用SPIFFS先上传到开发板的ROM里.
-  //好像Arduino现有对我现在使用的开发板的psram的支持并不是那么友好.
+  //好像Arduino现有版本对我在使用开发板的psram的支持并不是那么友好.
+  //选择4M（1.2 APP 1.5 SPIFFS ，WebPage占用791KB）
   server.on("/", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(SPIFFS, "/index.html", "text/html");
   });
@@ -134,7 +140,7 @@ void loop() {
         while (Serial.available() > 0)//循环串口是否有数据
         {
             comdata += char(Serial.read());//叠加数据到comdata
-            delay(2);//延时等待响应
+            delay(5);//延时等待响应
         }
         if (comdata.length() > 0)//如果comdata有数据
         {
