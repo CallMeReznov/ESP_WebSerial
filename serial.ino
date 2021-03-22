@@ -12,21 +12,24 @@
 #include <SPIFFS.h>
 #include <WiFiClientSecure.h>
 #include <WebSocketsServer.h>
-
-
+//#include <SoftwareSerial.h>
+#include <HardwareSerial.h>
 
 //设置WIFI密码
 String comdata = "";
 const char* ssid = "test12345";
 const char* password = "test12345";
 
+#define D5 (18)
+#define D6 (22)
+
+//SoftwareSerial swSer2;
+HardwareSerial swSer2(2);
 //Web服务
 AsyncWebServer server(80);
 //WebSocket服务
 WebSocketsServer webSocket = WebSocketsServer(8088);
 
-//设置交互串口
-//abababababababababababababa
 
 //404页
 void errorpage(AsyncWebServerRequest* request) {
@@ -59,21 +62,22 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length)
         IPAddress ip = webSocket.remoteIP(num);
         Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
 
+
         // send message to client
         webSocket.sendTXT(num, "Connected");
     }
         break;
     //串口交互ababababababababababababa
     case WStype_TEXT:
-        Serial.printf("[%u] get Text: %s\n", num, payload);
+        for (int i = 0; i < length; i++) {
+            //if (payload[i] == "\t") {}
+            if (payload[i] == '\t') {
+                //啊巴啊巴啊巴啊巴啊巴啊巴明天写
+            }
+        }
 
-        // send message to client
-        //webSocket.sendTXT(num, "message here");
-
-        // send data to all connected clients
-        //webSocket.broadcastTXT("");
-        //webSocket.broadcastTXT("llll");
-
+        //Serial.printf("%s\n", payload);
+        //swSer2.printf("%s\n", payload);
         break;
     case WStype_BIN:
         Serial.printf("[%u] get binary length: %u\n", num, length);
@@ -95,6 +99,10 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length)
 
 void setup() {
   Serial.begin(115200);
+  //设备通讯口默认是交换机
+  //SerialServer.begin(9600, SERIAL_8N1, RX1, TX1);
+  swSer2.begin(9600, SERIAL_8N1, D5, D6);
+
   if (!SPIFFS.begin()) {
     Serial.println("SPIFFS error");
     return;
@@ -134,17 +142,18 @@ void setup() {
 
 void loop() {
     webSocket.loop();
-    if (Serial.available() > 0)//判读是否串口有数据
+    if (swSer2.available() > 0)//判读是否串口有数据
     {
         String comdata = "";//缓存清零
-        while (Serial.available() > 0)//循环串口是否有数据
+        while (swSer2.available() > 0)//循环串口是否有数据
         {
-            comdata += char(Serial.read());//叠加数据到comdata
+            comdata += char(swSer2.read());//叠加数据到comdata
             delay(5);//延时等待响应
         }
         if (comdata.length() > 0)//如果comdata有数据
         {
             webSocket.broadcastTXT(comdata);
+            Serial.println(comdata);//打印comdata数据
         }
     }
-    }
+}

@@ -25,6 +25,8 @@
     <script>
         //ws  = new WebSocket('ws://192.168.20.145:81');
         ws = new WebSocket('ws://'+document.location.hostname+':8088')
+        var msgout = document.getElementById('serial-out');
+        var msgin = document.getElementById('serial-input');
         if ('WebSocket' in window)
             console.log('Pass');
         else
@@ -37,17 +39,28 @@
         }
         
         ws.onmessage = function(serialmsg){
-            var msg = document.getElementById('serial-out');
-            msg.innerHTML+=serialmsg.data+'&#13';
+            
+            msg.innerHTML+=serialmsg.data;
             msg.scrollTop = msg.scrollHeight;
 
         }
+
+        ws.onclose = function(){
+            
+            msgout.innerHTML+="Lost Connect............"
+        }
+        //不能发送空消息，否则ESP会崩溃。
         function sendmsg(){
-            var msg1 = document.getElementById('serial-input');
-            ws.send(msg1.value);
-            msg1.value = '';
-            var roll = document.getElementById('serial-out');
-            roll.scrollTop = roll.scrollHeight;
+            
+            ws.send(msgin.value);
+            msgin.value = '';
+            msgout.scrollTop = msgout.scrollHeight;
+        
+        }
+        function hotkey(){
+            if (event.keyCode == 13 & msgin.value != ""){
+                sendmsg();
+            }
         }
 
         window.onbeforeunload = function(){
@@ -74,7 +87,7 @@
         </div>
         <div class="row">
             <div class="col-12">
-                <input type="text" class="form-control" placeholder="输入命令" id="serial-input" rows="1" onkeydown="if(event.keyCode == 13) sendmsg()">
+                <input type="text" class="form-control" placeholder="输入命令" id="serial-input" rows="1" onkeydown="hotkey()">
             </div>
         </div>
         <div class="row">

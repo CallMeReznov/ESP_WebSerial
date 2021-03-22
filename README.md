@@ -6,9 +6,8 @@ DAY 3 : 实现WebSocket与调试串口交互.
 
 
 
-
-ESP32­-WROVER­-B DataSheet:
+ESP32­-WROVER­-B DataSheet:  
 https://www.espressif.com/sites/default/files/documentation/esp32-wrover-b_datasheet_cn.pdf
 
-Development board :
+Development board :  
 https://github.com/LilyGO/LILYGO-T-Energy
