@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esp Web Serial Server</title>
+    <link href="./bootstrap.min.css" rel="stylesheet">
+    <script src="./jquery.min.js"></script>
+    <script src="./bootstrap.min.js"></script>
+    <style type="text/css">
+        #serial-out {
+            width: 100%;
+            overflow: auto;
+            word-break: break-all; 
+            resize: none;
+        }
+        #serial-input {
+            width: 100%;
+            overflow: auto;
+            word-break: break-all; 
+            resize: none;
+        }
+    </style>
+    <script>
+        //ws  = new WebSocket('ws://192.168.20.145:81');
+        ws = new WebSocket('ws://'+document.location.hostname+':8088')
+        if ('WebSocket' in window)
+            console.log('Pass');
+        else
+            alert('游览器不支持');
+        ws.onopen = function(){
+            console.log('连接建立成功');
+        }
+        ws.onerror = function(err){
+            console.log(err.data);
+        }
+        
+        ws.onmessage = function(serialmsg){
+            var msg = document.getElementById('serial-out');
+            msg.innerHTML+=serialmsg.data+'&#13';
+            msg.scrollTop = msg.scrollHeight;
+
+        }
+        function sendmsg(){
+            var msg1 = document.getElementById('serial-input');
+            ws.send(msg1.value);
+            msg1.value = '';
+            var roll = document.getElementById('serial-out');
+            roll.scrollTop = roll.scrollHeight;
+        }
+
+        window.onbeforeunload = function(){
+            ws.close();
+            console.log('连接已关闭');
+        }
+
+        window.onclose =function(){
+            ws.close();
+            console.log('连接已关闭');
+        }
+        
+        
+        
+    </script>
+
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <textarea class="form-control" id="serial-out" rows="35" readonly="readonly" ></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <input type="text" class="form-control" placeholder="输入命令" id="serial-input" rows="1" onkeydown="if(event.keyCode == 13) sendmsg()">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <button onclick="sendmsg()"  class="btn btn-success" type="button">Send</button>
+                <button title="Cancel" class="btn btn-success" type="button">Ctrl+C</button>
+                <button title="display current-configuration" class="btn btn-success" type="button">Ctrl+G</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
