@@ -25,7 +25,7 @@ ESPAsyncWebServer | Esp32WebServer
 ArduinoWebSockets | ESP32WebSocketServer
 SPIFFS | ESP32文件系统操作用来保存页面
 
-##使用说明
+## 使用说明
 编译固件,使用ESP32 data upload上传/data内的文件，正确连接RS-232 TO TTL模块到开发板指定针脚开机即可(代码内D5 D6定义针脚与VCC,GND)
 
 ## TODO 
