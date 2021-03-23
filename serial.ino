@@ -15,10 +15,13 @@
 //#include <SoftwareSerial.h>
 #include <HardwareSerial.h>
 
+int num = 8;
+String letters[] = { "a", "b", "c", "d", "e", "f","g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
+String pwstr ;
 //设置WIFI密码
 String comdata = "";
 const char* ssid = "test12345";
-const char* password = "test12345";
+const char* password ;
 
 #define D5 (18)
 #define D6 (22)
@@ -104,8 +107,14 @@ void setup() {
     Serial.println("SPIFFS error");
     return;
   }
-  Serial.println();
+  for (int i = 0; i < num; i++)
+  {
+      pwstr = pwstr + letters[random(0, 36)];
+  }
+  password = pwstr.c_str();
   Serial.println("Configuring access point...");
+  Serial.print("WiFiPassWord Is :");
+  Serial.println(password);
   WiFi.softAP(ssid, password);
 
   
