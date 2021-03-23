@@ -21,7 +21,35 @@
             word-break: break-all; 
             resize: none;
         }
+        .btn{
+            width: 24%;
+        }
     </style>
+    
+
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <textarea class="form-control" id="serial-out" rows="30" readonly="readonly" ></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <input type="text" class="form-control" placeholder="输入命令" id="serial-input" rows="1" onkeydown="hotkey()">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 md-0" style="text-align:center">
+                <button onclick="sendmsg('\x0A')"title="Cancel" class="btn btn-success" type="button">Linefeed</button>
+                <button onclick="sendmsg('\x0D')"title="Cancel" class="btn btn-success" type="button">Enter</button>
+                <button onclick="sendmsg('\x20')"title="Cancel" class="btn btn-success" type="button">Space</button>
+                <button onclick="sendmsg('\x03')"title="Cancel" class="btn btn-success" type="button">Stop</button>
+
+            </div>
+        </div>
+    </div>
     <script>
         //ws  = new WebSocket('ws://192.168.20.145:81');
         ws = new WebSocket('ws://'+document.location.hostname+':8088')
@@ -40,26 +68,25 @@
         
         ws.onmessage = function(serialmsg){
             
-            msg.innerHTML+=serialmsg.data;
-            msg.scrollTop = msg.scrollHeight;
+            msgout.innerHTML+=serialmsg.data;
+            msgout.scrollTop = msgout.scrollHeight;
 
         }
 
         ws.onclose = function(){
             
-            msgout.innerHTML+="Lost Connect............"
+            msgout.innerHTML+="&#10;"+"Lost Connect............"+"&#10;"
         }
         //不能发送空消息，否则ESP会崩溃。
-        function sendmsg(){
-            
-            ws.send(msgin.value);
-            msgin.value = '';
-            msgout.scrollTop = msgout.scrollHeight;
-        
+        function sendmsg(key){
+            ws.send(key);
+            console.log(key);
         }
         function hotkey(){
-            if (event.keyCode == 13 & msgin.value != ""){
-                sendmsg();
+            if (event.keyCode == 13 && msgin.value != ""){
+                ws.send(msgin.value+'\r\n');
+                msgin.value = '';
+                msgout.scrollTop = msgout.scrollHeight;
             }
         }
 
@@ -72,31 +99,6 @@
             ws.close();
             console.log('连接已关闭');
         }
-        
-        
-        
     </script>
-
-</head>
-<body>
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <textarea class="form-control" id="serial-out" rows="35" readonly="readonly" ></textarea>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <input type="text" class="form-control" placeholder="输入命令" id="serial-input" rows="1" onkeydown="hotkey()">
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <button onclick="sendmsg()"  class="btn btn-success" type="button">Send</button>
-                <button title="Cancel" class="btn btn-success" type="button">Ctrl+C</button>
-                <button title="display current-configuration" class="btn btn-success" type="button">Ctrl+G</button>
-            </div>
-        </div>
-    </div>
 </body>
 </html>

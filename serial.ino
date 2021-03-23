@@ -70,10 +70,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length)
     //串口交互ababababababababababababa
     case WStype_TEXT:
         for (int i = 0; i < length; i++) {
-            //if (payload[i] == "\t") {}
-            if (payload[i] == '\t') {
-                //啊巴啊巴啊巴啊巴啊巴啊巴明天写
-            }
+            swSer2.write(payload[i]);
         }
 
         //Serial.printf("%s\n", payload);
