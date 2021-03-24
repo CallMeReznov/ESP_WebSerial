@@ -12,19 +12,19 @@
 #include <SPIFFS.h>
 #include <WiFiClientSecure.h>
 #include <WebSocketsServer.h>
-//#include <SoftwareSerial.h>
 #include <HardwareSerial.h>
+#include <Wire.h>
+#include <Adafruit_SSD1306.h>
 
 int num = 8;
 String letters[] = { "a", "b", "c", "d", "e", "f","g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
 String pwstr ;
-//设置WIFI密码
 String comdata = "";
-const char* ssid = "test12345";
+const char* ssid = "Esp-WebSerial";
 const char* password ;
 
-#define D5 (18)
-#define D6 (22)
+#define D5 (35)
+#define D6 (32)
 
 //SoftwareSerial swSer2;
 HardwareSerial swSer2(2);
@@ -32,7 +32,8 @@ HardwareSerial swSer2(2);
 AsyncWebServer server(80);
 //WebSocket服务
 WebSocketsServer webSocket = WebSocketsServer(8088);
-
+//OLED   
+Adafruit_SSD1306 display(128, 32, &Wire, 4);
 
 //404页
 void errorpage(AsyncWebServerRequest* request) {
@@ -74,6 +75,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length)
     case WStype_TEXT:
         for (int i = 0; i < length; i++) {
             swSer2.write(payload[i]);
+            Serial.write(payload[i]);
         }
 
         //Serial.printf("%s\n", payload);
@@ -102,7 +104,7 @@ void setup() {
   //设备通讯口默认是交换机
   //SerialServer.begin(9600, SERIAL_8N1, RX1, TX1);
   swSer2.begin(9600, SERIAL_8N1, D5, D6);
-
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   if (!SPIFFS.begin()) {
     Serial.println("SPIFFS error");
     return;
@@ -115,6 +117,13 @@ void setup() {
   Serial.println("Configuring access point...");
   Serial.print("WiFiPassWord Is :");
   Serial.println(password);
+  display.clearDisplay();
+
+  display.setTextSize(2); // Draw 2X-scale text
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(15, 0);
+  display.println(password);
+  display.display();      // Show initial text
   WiFi.softAP(ssid, password);
 
   
