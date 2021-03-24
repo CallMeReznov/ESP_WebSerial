@@ -5,14 +5,19 @@
 <div align="center">使用ESP32开发板制作的串口调试工具,无需客户端,支持移动端操作.</div>
 
 ---
+*  ProtoType 0
 ![开发板1](./img/1.jpg)
 ![开发板2](./img/2.jpg)
+* ProtoType 1 
+![开发板2](./img/prototype1.jpg)
+
 
 ## 更新日志  
 * 20210318 构思框架，完成前端demo，WS调试通过。
 * 20210319 编写固件，完成WSSERVER WEBSERVER SPIFFS AP 相关基础。
 * 20210322 完成串口与网页的通讯调试。  
 * 20210323 解决了一些交换机交互的ASCII问题，完成V1.0。
+* 20210324 随机WIFI密码，并使用OLED显示，ProtoType 1定型，固件版本v1.1
 
 ## 开发环境 
 开发语言 : Arduino  
@@ -24,16 +29,19 @@ Bootstrap | 网页前端框架
 ESPAsyncWebServer | Esp32WebServer
 ArduinoWebSockets | ESP32WebSocketServer
 SPIFFS | ESP32文件系统操作用来保存页面
+MCS-51M | RS-232 TTL互转模块
 
 ## 使用说明
-编译固件,使用ESP32 data upload上传/data内的文件，正确连接RS-232 TO TTL模块到开发板指定针脚开机即可(代码内D5 D6定义针脚与VCC,GND)
+PS : 暂不提供Release固件  
+使用Arduino编译固件,使用ESP32 data upload上传/data内的文件，正确连接RS-232 TO TTL模块到开发板指定针脚开机即可(代码内D5 D6定义针脚与VCC,GND)
 
 ## TODO 
-* [ ] 增加外置显示
+* [x] 增加外置显示
 * [x] 随机WIFI密码(WPS)
 * [ ] 一些字符缺失以及乱码问题  
 * [ ] 移植到8266之类的开发板上
 * [ ] 集成RS-232到PCB上,直接使用网络线线路
+
 
 
 
