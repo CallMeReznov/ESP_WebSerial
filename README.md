@@ -9,8 +9,9 @@
 ![开发板1](./img/1.jpg)
 ![开发板2](./img/2.jpg)
 * ProtoType 1 
-![开发板2](./img/prototype1.jpg)
-
+![ProtoType 1 ](./img/prototype1.jpg)
+* WebGui 
+* ![WebGui](./img/gui.jpg)
 
 ## 更新日志  
 * 20210318 构思框架，完成前端demo，WS调试通过。
