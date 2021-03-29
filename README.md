@@ -37,13 +37,14 @@
 Bootstrap | 网页前端框架
 ESPAsyncWebServer | Esp32WebServer
 ArduinoWebSockets | ESP32WebSocketServer
+jquery.terminal | https://github.com/jcubic/jquery.terminal JQ的WEB终端插件
 SPIFFS | ESP32文件系统操作用来保存页面
 MCS-51M | RS-232 TTL互转模块
 MCS-51B | RS-232 TTL互转MINI模块
 
 ## 使用说明
 PS : 暂不提供Release固件  
-使用Arduino编译固件,使用ESP32 data upload上传/data内的文件，正确连接RS-232 TO TTL模块到开发板指定针脚开机即可(代码内D5 D6定义针脚与VCC,GND)
+使用Arduino编译固件,使用ESP32 data upload上传/data内的文件，正确连接RS-232 TO TTL模块到开发板指定针脚开机即可(代码内D5 D6定义针脚与VCC,GND)  
 RS232改RJ45时需保留网口3456线3与6为RX,TX,45为GND可直接并起来.
 
 
