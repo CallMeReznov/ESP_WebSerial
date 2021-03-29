@@ -1,5 +1,5 @@
-//ESP32 Only   Core : ESP32­-WROVER­-B
-//Development board : https://github.com/LilyGO/LILYGO-T-Energy
+//ESP32 Only   Core : ESP32­-
+//Development board : https://github.com/Xinyuan-LilyGO/TTGO-T-Display
 // 
 //IF 8266
 //#include <ESP8266WiFi.h>
@@ -13,27 +13,33 @@
 #include <WiFiClientSecure.h>
 #include <WebSocketsServer.h>
 #include <HardwareSerial.h>
-#include <Wire.h>
-#include <Adafruit_SSD1306.h>
+//TTGO-T-Display Tft
+#include <TFT_eSPI.h> 
+#include <SPI.h>
 
 int num = 8;
 String letters[] = { "a", "b", "c", "d", "e", "f","g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
 String pwstr ;
+//设置WIFI密码
 String comdata = "";
-const char* ssid = "Esp-WebSerial";
+const char* ssid = "Esp_SerialServer";
 const char* password ;
+//开关
+const int button=35;
 
-#define D5 (35)
+
+
+#define D5 (33)
 #define D6 (32)
 
-//SoftwareSerial swSer2;
+//
 HardwareSerial swSer2(2);
 //Web服务
 AsyncWebServer server(80);
 //WebSocket服务
 WebSocketsServer webSocket = WebSocketsServer(8088);
-//OLED   
-Adafruit_SSD1306 display(128, 32, &Wire, 4);
+
+TFT_eSPI tft = TFT_eSPI();
 
 //404页
 void errorpage(AsyncWebServerRequest* request) {
@@ -60,6 +66,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length)
     switch (type) {
     case WStype_DISCONNECTED:
         Serial.printf("[%u] Disconnected!\n", num);
+        tft.println("Disconnected!");
         break;
     case WStype_CONNECTED:
     {
@@ -69,11 +76,13 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length)
 
         // send message to client
         webSocket.sendTXT(num, "Connected");
+        tft.println("Server:Connected");
     }
         break;
     //串口交互ababababababababababababa
     case WStype_TEXT:
         for (int i = 0; i < length; i++) {
+            //swSer2.write(payload[i]);
             swSer2.write(payload[i]);
             Serial.write(payload[i]);
         }
@@ -97,14 +106,21 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length)
 
 }
 
-
-
 void setup() {
+  
+  tft.init();
+  //显示方向
+  //以Typec接口为上,2为上
+  tft.setRotation(1);
+  tft.fillScreen(TFT_BLACK);
+  tft.setCursor(0, 0, 2);
+  tft.setTextColor(TFT_WHITE,TFT_BLACK);  
+  tft.setTextSize(2);
+  tft.println("WiFi PassWord");
   Serial.begin(115200);
   //设备通讯口默认是交换机
   //SerialServer.begin(9600, SERIAL_8N1, RX1, TX1);
   swSer2.begin(9600, SERIAL_8N1, D5, D6);
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   if (!SPIFFS.begin()) {
     Serial.println("SPIFFS error");
     return;
@@ -117,14 +133,9 @@ void setup() {
   Serial.println("Configuring access point...");
   Serial.print("WiFiPassWord Is :");
   Serial.println(password);
-  display.clearDisplay();
-
-  display.setTextSize(2); // Draw 2X-scale text
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(15, 0);
-  display.println(password);
-  display.display();      // Show initial text
+  tft.println(password);
   WiFi.softAP(ssid, password);
+  pinMode(button,INPUT);
 
   
   //首页
@@ -134,17 +145,20 @@ void setup() {
   server.on("/", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(SPIFFS, "/index.html", "text/html");
   });
-  server.on("/jquery.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
-      request->send(SPIFFS, "/jquery.min.js", "  application/x-javascript");
-      });
-  server.on("/bootstrap.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
-      request->send(SPIFFS, "/bootstrap.min.js", "  application/x-javascript");
+  server.on("/jquery.terminal.min.css", HTTP_GET, [](AsyncWebServerRequest* request) {
+      request->send(SPIFFS, "/jquery.terminal.min.css", "text/css");
       });
   server.on("/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest* request) {
       request->send(SPIFFS, "/bootstrap.min.css", "text/css");
       });
-  server.on("/bootstrap.min.css.map", HTTP_GET, [](AsyncWebServerRequest* request) {
-      request->send(SPIFFS, "/bootstrap.min.css.map", "text/html");
+  server.on("/jquery.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+      request->send(SPIFFS, "/jquery.min.js", "  application/x-javascript");
+      });
+  server.on("/jquery.terminal.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+      request->send(SPIFFS, "/jquery.terminal.min.js", "application/x-javascript");
+      });
+  server.on("/bootstrap.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+      request->send(SPIFFS, "/bootstrap.min.js", "  application/x-javascript");
       });
   //404页
   server.onNotFound(errorpage);
@@ -154,6 +168,7 @@ void setup() {
   webSocket.onEvent(webSocketEvent);
   Serial.printf("ok");
 }
+
 
 void loop() {
     webSocket.loop();
@@ -171,4 +186,10 @@ void loop() {
             Serial.println(comdata);//打印comdata数据
         }
     }
+    if (digitalRead(button)==LOW)
+    {
+    //清除密码
+    tft.fillScreen(TFT_BLACK);
+    }
+
 }
